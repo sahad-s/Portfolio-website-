@@ -1,6 +1,6 @@
 # Portfolio Website — Muhammed Sahad S
 
-A personal portfolio website built using HTML5 and CSS3 as part of the 23CSE113 User Interface Design Lab Assignment at Amrita Vishwa Vidyapeetham.
+A personal portfolio website built using HTML5 and CSS3.
 
 ---
 
