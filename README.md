@@ -72,7 +72,7 @@ portfolio-website/
 Open `index.html` directly in any modern web browser.
 
 Or view the live hosted version here:  
-🔗 [Live Demo](https://sahad-s.github.io/portfolio-website)
+🔗 [Live Demo](https://sahad-s.github.io/Portfolio-website-)
 
 ---
 
