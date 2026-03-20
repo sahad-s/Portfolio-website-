@@ -81,6 +81,6 @@ Or view the live hosted version here:
 **Muhammed Sahad S**  
 B.Tech — Artificial Intelligence & Data Science  
 Amrita Vishwa Vidyapeetham  
-📧 sahad1782005@gmail.com  
+📧 [sahad1782005@gmail.com](https://mail.google.com/mail/?view=cm&to=sahad1782005@gmail.com)  
 🔗 [LinkedIn](https://www.linkedin.com/in/muhammed-sahad-s-9bab17326/)  
 🐙 [GitHub](https://github.com/sahad-s)
