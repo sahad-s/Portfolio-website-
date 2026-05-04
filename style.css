@@ -1,5 +1,4 @@
 
-
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600&family=Outfit:wght@300;400;500;600;700;800&display=swap');
 
 /* ——— CSS VARIABLES ——— */
@@ -44,6 +43,11 @@ body {
 ::-webkit-scrollbar-track { background: var(--bone); }
 ::-webkit-scrollbar-thumb { background: var(--rust); border-radius: 3px; }
 
+/* ——— CSS-ONLY HAMBURGER TOGGLE ——— */
+.menu-toggle-input {
+  display: none;
+}
+
 /* ——— NAVIGATION ——— */
 nav {
   position: fixed; top: 1.4rem; left: 0; right: 0;
@@ -52,6 +56,12 @@ nav {
   justify-content: center;
   align-items: center;
   pointer-events: none;
+  animation: navSlideDown 0.6s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+@keyframes navSlideDown {
+  from { opacity: 0; transform: translateY(-20px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 .nav-pill-track {
@@ -96,7 +106,13 @@ nav {
   color: var(--bone);
   background: rgba(200, 90, 56, 0.15);
 }
-.nav-links a.active {
+
+/* Active nav: CSS :target-based highlighting */
+#home:target ~ nav .nav-links a[href="#home"],
+#about:target ~ nav .nav-links a[href="#about"],
+#skills:target ~ nav .nav-links a[href="#skills"],
+#projects:target ~ nav .nav-links a[href="#projects"],
+#contact:target ~ nav .nav-links a[href="#contact"] {
   color: var(--bone);
   background: var(--rust);
 }
@@ -112,6 +128,71 @@ nav {
   padding: 0.7rem 0.9rem;
 }
 .nav-hamburger span { width: 22px; height: 2px; background: var(--bone); border-radius: 2px; transition: var(--transition); }
+
+/* Hamburger open state — rotate spans into X */
+.menu-toggle-input:checked ~ nav .nav-hamburger span:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+.menu-toggle-input:checked ~ nav .nav-hamburger span:nth-child(2) {
+  opacity: 0;
+  transform: scaleX(0);
+}
+.menu-toggle-input:checked ~ nav .nav-hamburger span:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+/* ——— MOBILE MENU ——— */
+.mobile-menu {
+  display: flex;
+  position: fixed; inset: 0;
+  background: var(--cream);
+  z-index: 99;
+  padding: 8rem 2rem 2rem;
+  flex-direction: column;
+  gap: 2rem;
+  /* Hidden by default via transform + pointer-events */
+  transform: translateX(100%);
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+}
+
+/* Show when checkbox is checked */
+.menu-toggle-input:checked ~ .mobile-menu {
+  transform: translateX(0);
+  pointer-events: all;
+}
+
+.mobile-menu a {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--charcoal);
+  text-decoration: none;
+  transition: color var(--transition);
+  opacity: 0;
+  transform: translateX(20px);
+}
+.menu-toggle-input:checked ~ .mobile-menu a {
+  animation: menuLinkIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+.menu-toggle-input:checked ~ .mobile-menu a:nth-child(2) { animation-delay: 0.08s; }
+.menu-toggle-input:checked ~ .mobile-menu a:nth-child(3) { animation-delay: 0.13s; }
+.menu-toggle-input:checked ~ .mobile-menu a:nth-child(4) { animation-delay: 0.18s; }
+.menu-toggle-input:checked ~ .mobile-menu a:nth-child(5) { animation-delay: 0.23s; }
+.menu-toggle-input:checked ~ .mobile-menu a:nth-child(6) { animation-delay: 0.28s; }
+
+@keyframes menuLinkIn {
+  from { opacity: 0; transform: translateX(20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.mobile-menu a:hover { color: var(--rust); }
+.close-menu {
+  position: absolute; top: 1.5rem; right: 2rem;
+  background: none; border: none;
+  font-size: 1.5rem; cursor: pointer;
+  color: var(--charcoal);
+}
 
 /* ——— HERO SECTION ——— */
 #home {
@@ -134,7 +215,10 @@ nav {
   pointer-events: none;
 }
 
-.ms-copy { position: relative; z-index: 1; }
+.ms-copy {
+  position: relative; z-index: 1;
+  animation: heroFadeUp 0.8s 0.2s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
 
 .ms-status {
   display: inline-flex; align-items: center; gap: 0.5rem;
@@ -248,6 +332,7 @@ nav {
   display: flex;
   justify-content: center;
   align-items: center;
+  animation: heroFadeUp 0.8s 0.4s cubic-bezier(0.4, 0, 0.2, 1) both;
 }
 
 .ms-frame {
@@ -340,6 +425,40 @@ section {
   margin-bottom: 1rem;
 }
 
+/* ——— REVEAL ANIMATION (CSS-only, runs on load with stagger) ——— */
+/*
+  Without IntersectionObserver, we trigger reveal using CSS
+  animation-fill-mode:both and let the animation-delay handle stagger.
+  Elements with .reveal animate in when the page loads / section is reached.
+  We use a view-timeline approach where supported, with a graceful
+  fallback to an entrance animation.
+*/
+
+@supports (animation-timeline: scroll()) {
+  .reveal {
+    animation: fadeUp linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 30%;
+  }
+}
+
+@supports not (animation-timeline: scroll()) {
+  .reveal {
+    animation: fadeUp 0.7s cubic-bezier(0.4, 0, 0.2, 1) both;
+    animation-delay: var(--reveal-delay, 0s);
+  }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes heroFadeUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 /* ——— ABOUT SECTION ——— */
 #about { background: var(--bone); }
 
@@ -380,20 +499,34 @@ section {
   stroke-width: 5;
 }
 
+/*
+  Dial animation: pure CSS — plays on page load after a short delay.
+  Uses animation-fill-mode:both so it holds the final state.
+  Each dial gets a stagger via nth-child.
+*/
 .dial-fill {
   fill: none;
   stroke: var(--rust);
   stroke-width: 5;
   stroke-linecap: round;
   stroke-dasharray: calc(32 * 2 * 3.14159);
+  /* Start fully hidden */
   stroke-dashoffset: calc(32 * 2 * 3.14159);
-  transition: stroke-dashoffset 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: dialDraw 1.4s 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 .dial-fill--forest { stroke: var(--forest); }
 .dial-fill--bark   { stroke: var(--bark); }
 
-.dial-fill.animated {
-  stroke-dashoffset: calc(32 * 2 * 3.14159 * (1 - var(--pct)));
+/* Stagger each dial */
+.stat-dial:nth-child(1) .dial-fill { animation-delay: 0.5s; }
+.stat-dial:nth-child(2) .dial-fill { animation-delay: 0.7s; }
+.stat-dial:nth-child(3) .dial-fill { animation-delay: 0.9s; }
+.stat-dial:nth-child(4) .dial-fill { animation-delay: 1.1s; }
+
+@keyframes dialDraw {
+  to {
+    stroke-dashoffset: calc(32 * 2 * 3.14159 * (1 - var(--pct)));
+  }
 }
 
 .dial-center {
@@ -827,11 +960,30 @@ footer {
 
 .footer-copy { font-size: 0.78rem; color: rgba(244, 237, 227, 0.25); }
 
-/* ——— ANIMATIONS ——— */
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to   { opacity: 1; transform: translateY(0); }
+/* ——— BACK TO TOP (CSS-only — always visible, styled as button) ——— */
+.back-top {
+  position: fixed;
+  bottom: 2rem; right: 2rem;
+  width: 44px; height: 44px;
+  background: var(--rust);
+  color: white;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem;
+  text-decoration: none;
+  box-shadow: 0 4px 16px rgba(200, 90, 56, 0.35);
+  transition: background var(--transition), transform var(--transition);
+  z-index: 90;
+  /* Fade in after scrolling (approximated via animation-delay; always present but subtle) */
+  opacity: 0.75;
 }
+.back-top:hover {
+  background: var(--rust-dark);
+  transform: translateY(-3px);
+  opacity: 1;
+}
+
+/* ——— GLOBAL ANIMATIONS ——— */
 @keyframes pulse {
   0%, 100% { opacity: 1; transform: scale(1); }
   50%       { opacity: 0.5; transform: scale(0.85); }
@@ -839,32 +991,6 @@ footer {
 @keyframes float {
   0%, 100% { transform: translateY(0); }
   50%       { transform: translateY(-8px); }
-}
-
-/* ——— MOBILE MENU ——— */
-.mobile-menu {
-  display: none;
-  position: fixed; inset: 0;
-  background: var(--cream);
-  z-index: 99;
-  padding: 8rem 2rem 2rem;
-  flex-direction: column;
-  gap: 2rem;
-}
-.mobile-menu a {
-  font-family: var(--font-display);
-  font-size: 2rem;
-  font-weight: 700;
-  color: var(--charcoal);
-  text-decoration: none;
-  transition: color var(--transition);
-}
-.mobile-menu a:hover { color: var(--rust); }
-.close-menu {
-  position: absolute; top: 1.5rem; right: 2rem;
-  background: none; border: none;
-  font-size: 1.5rem; cursor: pointer;
-  color: var(--charcoal);
 }
 
 /* ——— RESPONSIVE ——— */
